@@ -1,7 +1,9 @@
 from aiogram import types, Bot, Dispatcher, executor
 import logging
-from states import STATES
+from states import *
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from database import *
+
 
 
 from Keyboards.inline import *
@@ -53,7 +55,6 @@ async def start(message: types.Message):
 
 
 
-
 @dp.callback_query_handler(text='buyurtma')
 async def buyurtmaa(call:types.CallbackQuery):
     await call.message.answer("Buyurtmani birga joylashtiramizmi? 🤗")
@@ -85,12 +86,84 @@ async def ha_yoq(message: types.Message):
     await message.answer("Buyurtmani birga joylashtiramizmi? 🤗")
     await message.answer(""" 
     <a href = "https://telegra.ph/Taomnoma-09-30">Kategoriyalardan birini tanlang.</a>""", reply_markup=snakes)
+    await Kategoriyalar.kategory.set()
+
+@dp.callback_query_handler(state=Kategoriyalar.kategory)
+async def kategory(call: types.CallbackQuery):
+
+    if call.data == "aksiyalar":
+        a = cursor.execute("SELECT * FROM product")
+        txt = ""
+        product_image = ""
+        for i in a:
+            txt += f"<b>{i[1]}</b>\n<b>Narxi:<i>{i[3]}</i></b>\n<b>Tavsif:{i[4]}</b>"
+            product_image += f"{i[2]}"
+            print(i)
+        await call.bot.send_photo(call.from_user.id , photo=(open(product_image, "rb")),caption=txt, reply_markup=product_inline)
+        await For_update_inine.btn_inline.set()
+
+@dp.callback_query_handler(text="menu")
+async def me(call: types.CallbackQuery):
+    await call.message.answer("Siz asosiy menudasiz", reply_markup=meny_py)
 
 
+@dp.callback_query_handler(text="bizhaqimizda")
+async def bizhaqimizda(call: types.CallbackQuery):
+    await call.message.answer("""Biz O‘zbekiston bozorida 12 yildan beri faoliyat yuritamiz va bugungi kunda butun mamlakat bo‘ylab 50 dan ortiq filiallarimiz mavjud. Mazali va to‘yimli taomlar, qulay narxlar, tez yetkazib berish xizmatidan mamnun mijozlar yana va yana bizni tanlamoqda.
+
+Qaynoqqina va mazali lavashlarimiz, shaurmayu donerlarimiz, gamburger va pitsalarimizdan albatta tatib ko'rishingizni tavsiya qilamiz va buyurtmangizga tovuq go'shtidan yangiliklarimizni qo'shishni unutmang!
+
+Yetkazib berish xizmati:  +998781500030
+Sayt (https://oqtepalavash.uz/) | Facebook (http://fb.me/oqtepalavash.official) | Instagram (https://www.instagram.com/oqtepalavash.official)""",
+                              reply_markup=orqaga)
+
+def create_product_inline(count):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="-", callback_data="minus"),
+                InlineKeyboardButton(text=f"{count}", callback_data="default"),
+                InlineKeyboardButton(text="+", callback_data="plus"),
+            ],
+            [
+                InlineKeyboardButton(text="Savatchaga qo'shish📥", callback_data="karzinka"),
+            ],
+            [
+                InlineKeyboardButton(text="⬅️Asosiy menu", callback_data="asosiy"),
+            ]
+        ]
+    )
+
+@dp.callback_query_handler(state=For_update_inine.btn_inline)
+async def plus_upate(call:types.CallbackQuery):
+    user_id = call.message.chat.id
+    result = cursor.execute('SELECT * FROM counts WHERE user_id=?', (user_id,)).fetchone()
+
+    if not result:
+        await check_count(user_id)
+        result = cursor.execute('SELECT * FROM counts WHERE user_id=?', (user_id,)).fetchone()
+
+    count = result[2]
+
+    if call.data == "plus":
+        count += 1
+    elif call.data == "minus" and count > 0:
+        count -= 1
+    elif call.data == "karzinka":
+        user_id = call.message.from_user.id
+        a = cursor.execute("SELECT * FROM product")
+        product_name = ""
+        for i in a:
+            product_name+=i[1]
 
 
+        add_in_savat(user_id, product_name, count)
+        await call.answer("buyurtmangiz savatchaga🤵‍♂️' \nTuwdi uni qabul qilib oling✅/❌")
+    cursor.execute('UPDATE counts SET count_1=? WHERE user_id=?', (count, user_id))
+    connect.commit()
 
-
+    await bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                        reply_markup=create_product_inline(count))
 
 
 if __name__ == '__main__':

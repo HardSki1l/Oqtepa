@@ -55,3 +55,61 @@ snakes = InlineKeyboardMarkup(
     ],
 
 )
+
+
+product_inline = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+        InlineKeyboardButton(text="-", callback_data="minus"),
+        InlineKeyboardButton(text=f"0", callback_data="default"),
+        InlineKeyboardButton(text="+", callback_data="plus"),
+        ],
+        [
+        InlineKeyboardButton(text="Savatchaga qo'shish📥", callback_data="karzinka"),
+        ],
+        [
+            InlineKeyboardButton(text="⬅️Asosiy menu", callback_data="asosiy"),
+        ]
+    ],
+)
+
+orqaga = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Asosiy menu", callback_data="menu")
+        ]
+    ]
+)
+
+filiallar =InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="⬅️Asosiy menu", callback_data="menu"),
+            InlineKeyboardButton(text="🏚Eng yaqin filial" ,callback_data="yaqinfilial"),
+
+        ],
+        [
+            InlineKeyboardButton(text="➡️Keyingisi" ,callback_data="keyingisi"),
+        ],
+        [
+            InlineKeyboardButton(text="Algoritm" ,callback_data="algoritm"),
+            InlineKeyboardButton(text="Andijon1" ,callback_data="andijon"),
+        ],
+        [
+            InlineKeyboardButton(text="Andijon2" ,callback_data="andijon2"),
+            InlineKeyboardButton(text="Aviasozlar bozozri" ,callback_data="aviasozlar"),
+        ],
+        [
+            InlineKeyboardButton(text="Beruniy" ,callback_data="beruniy"),
+            InlineKeyboardButton(text="Bodomzor" ,callback_data="bodomzor"),
+        ],
+        [
+            InlineKeyboardButton(text="bodomzor2" ,callback_data="bodomzor2"),
+            InlineKeyboardButton(text="Bo'ka" ,callback_data="bo'ka"),
+        ],
+        [
+            InlineKeyboardButton(text="Chigatoy" ,callback_data="chigatoy"),
+            InlineKeyboardButton(text="Chilonzor" ,callback_data="chiklonzor"),
+        ]
+    ]
+)
